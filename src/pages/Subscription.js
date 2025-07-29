@@ -1,32 +1,46 @@
 import React from "react";
 
-function Subscription() {
-    const checkPaymentTime = () => {
-        const now = new Date();
-        const hourIST = (now.getUTCHours() + 5 + Math.floor((now.getUTCMinutes() + 30) / 60)) % 24;
-        return hourIST >= 10 && hourIST < 11;
-    };
+const Subscription = () => {
+    const handlePayment = async () => {
+        try {
+            const res = await fetch("http://localhost:5000/create-order", {
+                method: "POST",
+            });
+            const data = await res.json();
 
-    const handlePayment = (plan) => {
-        if (!checkPaymentTime()) {
-            alert("Payment allowed only between 10 - 11 AM IST.");
-            return;
+            const options = {
+                key: "YOUR_RAZORPAY_KEY_ID", // Replace with Razorpay Key
+                amount: data.amount,
+                currency: data.currency,
+                order_id: data.id,
+                name: "Twitter Clone",
+                description: "Premium Subscription",
+                handler: function (response) {
+                    alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
+                },
+                theme: {
+                    color: "#3399cc",
+                },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch (err) {
+            console.error("Payment Error:", err);
         }
-        alert(`Redirecting to payment for ${plan} plan.`);
-        // Integrate Razorpay or Stripe
     };
 
     return (
-        <div className="p-6">
-            <h2 className="text-2xl font-bold">Subscription Plans</h2>
-            <div className="mt-4 grid grid-cols-1 gap-4">
-                <button onClick={() => handlePayment("Free")} className="bg-gray-300 p-3 rounded">Free Plan</button>
-                <button onClick={() => handlePayment("Bronze")} className="bg-yellow-400 p-3 rounded">Bronze - ₹100/month</button>
-                <button onClick={() => handlePayment("Silver")} className="bg-blue-400 p-3 rounded">Silver - ₹300/month</button>
-                <button onClick={() => handlePayment("Gold")} className="bg-green-500 p-3 rounded">Gold - ₹1000/month</button>
-            </div>
+        <div className="p-6 text-center">
+            <h2 className="text-2xl font-bold mb-4">Premium Subscription</h2>
+            <button
+                onClick={handlePayment}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md"
+            >
+                Subscribe Now
+            </button>
         </div>
     );
-}
+};
 
 export default Subscription;

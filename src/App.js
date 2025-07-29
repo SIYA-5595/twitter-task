@@ -40,8 +40,8 @@ function App() {
                         <Link to="/profile" className="flex items-center gap-3 hover:text-sky-500">
                             <FaUser className="text-2xl" /> Profile
                         </Link>
-                        <Link to="/audio-tweet" className="flex items-center gap-3 hover:text-sky-500">
-                            <FaHashtag className="text-2xl" /> Audio Tweet
+                        <Link to="/audio" className="flex items-center gap-3 hover:text-sky-500">
+                            🎤 Audio Tweet
                         </Link>
                         <Link to="/subscription" className="flex items-center gap-3 hover:text-sky-500">
                             <FaBell className="text-2xl" /> Subscription
@@ -54,7 +54,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/profile" element={<Profile />} />
-                        <Route path="/audio-tweet" element={<AudioTweet />} />
+                        <Route path="/audio" element={<AudioTweet />} />
                         <Route path="/subscription" element={<Subscription />} />
                     </Routes>
                 </main>

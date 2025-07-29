@@ -1,80 +1,92 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
-const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
-const OPENWEATHER_API_KEY = "YOUR_OPENWEATHER_API_KEY";
+const containerStyle = {
+    width: "100%",
+    height: "400px",
+};
 
-function Profile() {
+const Profile = () => {
     const [location, setLocation] = useState(null);
     const [weather, setWeather] = useState(null);
-    const [loading, setLoading] = useState(false);
 
-    const getLocation = () => {
-        if (!navigator.geolocation) {
-            alert("Geolocation not supported by your browser");
-            return;
-        }
-        setLoading(true);
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                setLocation({ lat: latitude, lng: longitude });
+    const API_KEY = "AIzaSyBhyebhS34ZA5QvWj2HiMlu2eU2K4mMgq0"; // Replace with your Google Maps API Key
+    const WEATHER_KEY = "9c4524d48d607940fcf919121017942a"; // Replace with your OpenWeather API key
 
-                try {
-                    // Reverse geocoding to get City, State, Country
-                    const geoRes = await axios.get(
-                        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`
-                    );
-                    const address = geoRes.data.results[0].formatted_address;
+    const getUserLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    setLocation({ lat, lng });
 
-                    // Fetch weather
-                    const weatherRes = await axios.get(
-                        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPENWEATHER_API_KEY}&units=metric`
-                    );
-
-                    setWeather({
-                        address: address,
-                        temp: weatherRes.data.main.temp,
-                        condition: weatherRes.data.weather[0].description,
-                    });
-                } catch (error) {
-                    console.error(error);
-                    alert("Failed to fetch location/weather data");
+                    // Weather Data Fetch
+                    try {
+                        const weatherResponse = await fetch(
+                            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${WEATHER_KEY}&units=metric`
+                        );
+                        const weatherData = await weatherResponse.json();
+                        console.log("Weather Data:", weatherData);
+                        setWeather({
+                            temp: weatherData.main.temp,
+                            desc: weatherData.weather[0].description,
+                            city: weatherData.name,
+                            country: weatherData.sys.country,
+                        });
+                    } catch (err) {
+                        console.error("Weather API error:", err);
+                    }
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
                 }
-                setLoading(false);
-            },
-            (error) => {
-                alert("Unable to retrieve location");
-                setLoading(false);
-            }
-        );
+            );
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
     };
 
     return (
-        <div className="p-6 bg-white rounded shadow">
-            <h1 className="text-2xl font-bold mb-4">Profile</h1>
+        <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Profile Page</h2>
             <button
-                onClick={getLocation}
-                className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600"
+                onClick={getUserLocation}
+                className="px-4 py-2 bg-sky-500 text-white rounded-md hover:bg-sky-600"
             >
                 Obtain Location
             </button>
 
-            {loading && <p className="mt-4">Fetching location...</p>}
-
-            {location && weather && (
+            {location && (
                 <div className="mt-6">
-                    <h2 className="font-bold text-lg mb-2">Your Location:</h2>
-                    <p>{weather.address}</p>
+                    <h3 className="font-bold text-lg">Your Location:</h3>
                     <p>
-                        Weather: {weather.temp}°C, {weather.condition}
+                        Latitude: {location.lat}, Longitude: {location.lng}
                     </p>
 
-                    <div className="mt-4" style={{ height: "400px", width: "100%" }}>
-                        <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
+                    {/* Weather Info */}
+                    {weather ? (
+                        <div className="mt-4 bg-blue-50 p-4 rounded-md shadow">
+                            <h4 className="text-lg font-bold">Weather Info</h4>
+                            <p className="text-gray-700">
+                                <strong>City:</strong> {weather.city}, {weather.country}
+                            </p>
+                            <p className="text-gray-700">
+                                <strong>Temperature:</strong> {weather.temp}°C
+                            </p>
+                            <p className="text-gray-700">
+                                <strong>Condition:</strong> {weather.desc}
+                            </p>
+                        </div>
+                    ) : (
+                        <p className="mt-2 text-gray-500">Fetching weather data...</p>
+                    )}
+
+                    {/* Google Map */}
+                    <div className="mt-4">
+                        <LoadScript googleMapsApiKey={API_KEY}>
                             <GoogleMap
-                                mapContainerStyle={{ height: "400px", width: "100%" }}
+                                mapContainerStyle={containerStyle}
                                 center={location}
                                 zoom={12}
                             >
@@ -86,6 +98,6 @@ function Profile() {
             )}
         </div>
     );
-}
+};
 
 export default Profile;
