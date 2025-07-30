@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { FaHome, FaUser, FaBell, FaHashtag, FaTwitter } from "react-icons/fa";
+import { FaHome, FaUser, FaBell, FaTwitter } from "react-icons/fa";
 
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
@@ -25,10 +25,10 @@ function App() {
 
     return (
         <Router>
-            <div className="flex bg-gray-100 min-h-screen">
+            <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100">
 
                 {/* LEFT SIDEBAR */}
-                <aside className="w-1/5 p-4 bg-white border-r border-gray-200 shadow-md">
+                <aside className="hidden sm:block w-full sm:w-1/4 lg:w-1/5 p-4 bg-white border-r border-gray-200 shadow-md">
                     <div className="flex items-center gap-2 mb-8">
                         <FaTwitter className="text-sky-500 text-3xl" />
                         <span className="text-2xl font-bold text-sky-500">Twitter</span>
@@ -50,7 +50,7 @@ function App() {
                 </aside>
 
                 {/* MAIN CONTENT */}
-                <main className="flex-1 p-6">
+                <main className="flex-1 p-4 sm:p-6">
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/profile" element={<Profile />} />
@@ -60,7 +60,7 @@ function App() {
                 </main>
 
                 {/* RIGHT SIDEBAR */}
-                <aside className="w-1/4 p-4 bg-white border-l border-gray-200 shadow-md">
+                <aside className="hidden xl:block w-1/4 p-4 bg-white border-l border-gray-200 shadow-md">
                     {/* Search Bar */}
                     <div className="mb-4">
                         <input
@@ -108,6 +108,22 @@ function App() {
                         </button>
                     </div>
                 </aside>
+
+                {/* BOTTOM NAVBAR FOR MOBILE */}
+                <nav className="fixed bottom-0 left-0 right-0 sm:hidden bg-white shadow-inner border-t border-gray-200 flex justify-around py-2 z-50">
+                    <Link to="/" className="text-gray-600 hover:text-sky-500 text-xl">
+                        <FaHome />
+                    </Link>
+                    <Link to="/profile" className="text-gray-600 hover:text-sky-500 text-xl">
+                        <FaUser />
+                    </Link>
+                    <Link to="/audio" className="text-gray-600 hover:text-sky-500 text-xl">
+                        🎤
+                    </Link>
+                    <Link to="/subscription" className="text-gray-600 hover:text-sky-500 text-xl">
+                        <FaBell />
+                    </Link>
+                </nav>
 
             </div>
         </Router>
